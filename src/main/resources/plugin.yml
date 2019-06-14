@@ -1,0 +1,7 @@
+name: Shop
+version: ${project.version}
+main: china.moondrinkwind.minecraft.shop.Shop
+api-version: 1.13
+depend: [Fe]
+authors: [MoonDrinkkWind]
+description: a shop plugin
