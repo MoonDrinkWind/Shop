@@ -63,6 +63,10 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+              <id>lss233-minecraft</id>
+              <url>http://crystal.lss233.com.aslf.top/repositories/minecraft</url>
+        </repository>
     </repositories>
 
     <dependencies>

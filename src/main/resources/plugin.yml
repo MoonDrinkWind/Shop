@@ -5,3 +5,10 @@ api-version: 1.13
 depend: [Fe]
 authors: [MoonDrinkkWind]
 description: a shop plugin
+commands:
+  shop:
+    usage: "§a/Shop info 查看今日交易信息\n
+    §b/Shop buy 物品 数量 购买物品\n
+    §e/Shop sell 物品 数量 出售物品\n
+    §c/Shop add 物品展示名 价格 添加物品(手持需要出售的物品,需要OP权限)\n
+    §c/Shop remove 物品展示名 删除物品(需要OP权限)"
