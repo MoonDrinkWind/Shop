@@ -29,13 +29,14 @@ public final class Shop extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
-
+        saveDefaultConfig();
+        saveConfig();
+        getLogger().info("商店/提示]：插件启动");
     }
 
     @Override
     public void onDisable() {
-
+        getLogger().info("商店/提示]：插件关闭");
     }
 
     @Override
@@ -45,34 +46,70 @@ public final class Shop extends JavaPlugin {
             if(args.length == 3){
                 if(args[0].equalsIgnoreCase("Buy")){
                     if(configHandler.getBuyPrice(args[1]) == 0){
-                        player.sendMessage("[商店/提示]：物品不存在");
+                        player.sendMessage("§a[商店/提示]：物品不存在");
                     }else{
                         Double price = configHandler.getBuyPrice(args[1]);
                         int quantity = Integer.parseInt(args[2]);
                         if(playerMoneyAccount.getMoney(player) >= price * quantity){
-                            Material itemMaterial = configHandler.getItem(args[0]);
-                            playerInventory.addItem(player,itemMaterial,quantity);
-                            playerMoneyAccount.removeMoney(player,price * quantity);
-                            player.sendMessage("[商店/成功]：成功购买 本次花费: "+price*quantity);
+                            int airQuantity = playerInventory.countAir(player);
+                            int multiple = quantity / 64;
+                            if(!((quantity % 64) == 0)){
+                                multiple += 1;
+                            }
+                            if(airQuantity <= multiple){
+                                Material itemMaterial = configHandler.getItem(args[0]);
+                                playerInventory.addItem(player,itemMaterial,quantity);
+                                playerMoneyAccount.removeMoney(player,price * quantity);
+                                player.sendMessage("§a[商店/成功]：成功购买 本次花费: "+price*quantity);
+                            }else{
+                                player.sendMessage("§a[商店/失败]：背包空间不足");
+                            }
                         }else{
-                            player.sendMessage("[商店/失败]：你的口袋里的钱还不够");
+                            player.sendMessage("§a[商店/失败]：你的口袋里的钱还不够");
                         }
                     }
                 }else if(args[0].equalsIgnoreCase("Sell")){
                     if(configHandler.getSellPrice(args[1]) == 0){
-                        player.sendMessage("[商店/提示]：物品不存在");
+                        player.sendMessage("§a[商店/提示]：物品不存在");
                     }else{
-
+                        Material targetItem = configHandler.getItem(args[1]);
+                        int itemQuantity = playerInventory.countItem(player,targetItem);
+                        int targetQuantity = Integer.parseInt(args[2]);
+                        Double price = configHandler.getSellPrice(args[0]);
+                        if(itemQuantity >= targetQuantity){
+                            playerInventory.removeItem(player,targetItem,targetQuantity);
+                            playerMoneyAccount.addMoney(player,price * targetQuantity);
+                            player.sendMessage("§a[商店/成功]：出售成功 本次获得："+price * targetQuantity);
+                        }else{
+                            player.sendMessage("§a[商店/失败]：背包中物品低于目标数量");
+                        }
                     }
-                }else{
+                }
+                }else if(args.length == 4){
+                    if(args[0].equalsIgnoreCase("add")){
+                        if(!(player.getInventory().getItemInMainHand().getType().equals(Material.AIR))){
+                            configHandler.addItem(args[1],Double.parseDouble(args[2]),Double.parseDouble(args[3]),player.
+                                    getInventory().getItemInMainHand().getType().toString());
+                            player.sendMessage("§e[商店/成功]：行了");
+                            reloadConfig();
+                        }else{
+                            player.sendMessage("§e[商店/失败]：瞧你大伙乐的 空气能卖？");
+                        }
+                    }else{
+                        return false;
+                    }
+                }else if(args.length == 2){
+                    if(args[0].equalsIgnoreCase("remove")){
+                        configHandler.removeItem(args[1]);
+                        player.sendMessage("§e[商店/成功]：行了");
+                        reloadConfig();
+                    }else{
+                        return false;
+                    }
+                } else{
                     return false;
                 }
-            }else if(args.length == 2){
-
-            }else{
-                return false;
             }
-        }
         return true;
     }
 }
