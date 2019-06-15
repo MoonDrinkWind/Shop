@@ -1,28 +1,51 @@
 package china.moondrinkwind.minecraft.shop.util;
 
-import io.loyloy.fe.API;
-import io.loyloy.fe.Fe;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 
 /**
  * @Author MoonDrinkWind
  * @Description Player Money Account Class
  * */
 public class PlayerMoneyAccount {
-    private API FeAPI = new API((Fe) Bukkit.getPluginManager().getPlugin("Fe"));
-
-    public void addMoney(Player player,Double money){
-        FeAPI.getAccount(player.getName(),player.getUniqueId().toString()).setMoney(
-                FeAPI.getAccount(player.getName(),player.getUniqueId().toString()).getMoney()+money);
+    String url = "jdbc:mysql://localhost:3306/minecraft?useSSL=false&serverTimeZone=Shanghai";
+    String clazz = "com.mysql.cj.jdbc.Driver";
+    public long getMoney(Player player){
+        long money = 0;
+        try{
+            Class.forName(clazz);
+            PreparedStatement ps = DriverManager.getConnection(url).prepareStatement("select Balance from cmi_users where username = ?");
+            ps.setString(1,player.getName());
+            money = ps.executeQuery().getLong("Balance");
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return money;
     }
 
-    public void removeMoney(Player player,Double money){
-        FeAPI.getAccount(player.getName(),player.getUniqueId().toString()).setMoney(
-                FeAPI.getAccount(player.getName(),player.getUniqueId().toString()).getMoney()-money);
+    public void addMoney(Player player,long quantity){
+        try{
+            Class.forName(clazz);
+            PreparedStatement ps = DriverManager.getConnection(url).prepareStatement("update cmi_users set Balance = ? where username = ?");
+            ps.setLong(1,getMoney(player)+quantity);
+            ps.setString(2,player.getName());
+            ps.execute();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
-    public Double getMoney(Player player){
-        return FeAPI.getAccount(player.getName(),player.getUniqueId().toString()).getMoney();
+    public void removeMoney(Player player,long quantity){
+        try{
+            Class.forName(clazz);
+            PreparedStatement ps = DriverManager.getConnection(url).prepareStatement("update cmi_users set Balance = ? where username = ?");
+            ps.setLong(1,getMoney(player)-quantity);
+            ps.setString(2,player.getName());
+            ps.execute();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 }
